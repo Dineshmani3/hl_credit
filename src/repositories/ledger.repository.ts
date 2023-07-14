@@ -1,22 +1,16 @@
 import {inject} from '@loopback/core';
 import {DefaultCrudRepository} from '@loopback/repository';
 import {MongoDbDataSource} from '../datasources';
-import {Party, PartyRelations} from '../models';
+import {Ledger, LedgerRelations} from '../models';
 
-
-export class PartyRepository extends DefaultCrudRepository<
-  Party,
-  typeof Party.prototype.id,
-  PartyRelations
+export class LedgerRepository extends DefaultCrudRepository<
+  Ledger,
+  typeof Ledger.prototype.id,
+  LedgerRelations
 > {
-
   constructor(
     @inject('datasources.MongoDb') dataSource: MongoDbDataSource,
-
-
   ) {
-    super(Party, dataSource);
-
+    super(Ledger, dataSource);
   }
-
 }
