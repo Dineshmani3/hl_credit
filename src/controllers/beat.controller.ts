@@ -7,13 +7,13 @@ import {
   Where,
 } from '@loopback/repository';
 import {
-  post,
-  param,
+  del,
   get,
   getModelSchemaRef,
+  param,
   patch,
+  post,
   put,
-  del,
   requestBody,
   response,
 } from '@loopback/rest';
@@ -23,8 +23,8 @@ import {BeatRepository} from '../repositories';
 export class BeatController {
   constructor(
     @repository(BeatRepository)
-    public beatRepository : BeatRepository,
-  ) {}
+    public beatRepository: BeatRepository,
+  ) { }
 
   @post('/beats')
   @response(200, {
@@ -105,7 +105,7 @@ export class BeatController {
     },
   })
   async findById(
-    @param.path.number('id') id: number,
+    @param.path.string('id') id: string,
     @param.filter(Beat, {exclude: 'where'}) filter?: FilterExcludingWhere<Beat>
   ): Promise<Beat> {
     return this.beatRepository.findById(id, filter);
@@ -116,7 +116,7 @@ export class BeatController {
     description: 'Beat PATCH success',
   })
   async updateById(
-    @param.path.number('id') id: number,
+    @param.path.string('id') id: string,
     @requestBody({
       content: {
         'application/json': {
@@ -134,7 +134,7 @@ export class BeatController {
     description: 'Beat PUT success',
   })
   async replaceById(
-    @param.path.number('id') id: number,
+    @param.path.string('id') id: string,
     @requestBody() beat: Beat,
   ): Promise<void> {
     await this.beatRepository.replaceById(id, beat);
@@ -144,7 +144,7 @@ export class BeatController {
   @response(204, {
     description: 'Beat DELETE success',
   })
-  async deleteById(@param.path.number('id') id: number): Promise<void> {
+  async deleteById(@param.path.string('id') id: string): Promise<void> {
     await this.beatRepository.deleteById(id);
   }
 }
