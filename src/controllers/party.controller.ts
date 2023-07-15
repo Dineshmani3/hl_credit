@@ -47,14 +47,35 @@ export class PartyController {
     return this.partyRepository.create(party);
   }
 
-  @post('/parties-bulk')
-  @response(200, {
-    description: 'Party model instance',
-    content: {'application/json': {schema: getModelSchemaRef(Party)}},
+  @post('/parties-bulk', {
+    responses: {
+      '200': {
+        description: 'Party model instance',
+        content: {
+          'application/json': {
+            schema: getModelSchemaRef(Party)
+          }
+        },
+      },
+    },
   })
-  async bulkUpload(@requestBody() data: Party[]): Promise<void> {
-    // Use repository methods to save the data in bulk
-    await this.partyRepository.createAll(data);
+  async createAll(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: {
+            type: 'array',
+            items: getModelSchemaRef(Party, {
+              title: 'NewParty',
+              exclude: ['id'],
+            }),
+          }
+        },
+      },
+    })
+    parties: [Omit<Party, 'id'>]
+  ): Promise<Party[]> {
+    return await this.partyRepository.createAll(parties)
   }
 
   @get('/parties/count')
