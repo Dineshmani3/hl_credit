@@ -1,7 +1,7 @@
 import {Entity, model, property} from '@loopback/repository';
 
 @model()
-export class Party extends Entity {
+export class Bills extends Entity {
   @property({
     type: 'string',
     id: true,
@@ -11,41 +11,46 @@ export class Party extends Entity {
 
   @property({
     type: 'string',
+    required: true,
   })
-  party_code?: string;
+  partyId: string;
+
+  @property({
+    type: 'string',
+    required: true,
+  })
+  date: string;
+
+  @property({
+    type: 'string',
+    required: true,
+  })
+  billNo: string;
+
+  @property({
+    type: 'number',
+    required: true,
+  })
+  amount: number;
+
+  @property({
+    type: 'number',
+  })
+  outstanding?: number;
 
   @property({
     type: 'string',
   })
-  party_name?: string;
+  status?: string;
 
-  @property({
-    type: 'string',
-  })
-  address?: string;
 
-  @property({
-    type: 'any',
-  })
-  beat?: any;
-
-  @property({
-    type: 'string',
-  })
-  userTableId?: string;
-
-  @property({
-    type: 'string',
-  })
-  outStanding?: string;
-
-  constructor(data?: Partial<Party>) {
+  constructor(data?: Partial<Bills>) {
     super(data);
   }
 }
 
-export interface PartyRelations {
+export interface BillsRelations {
   // describe navigational properties here
 }
 
-export type PartyWithRelations = Party & PartyRelations;
+export type BillsWithRelations = Bills & BillsRelations;

@@ -7,13 +7,13 @@ import {
   Where,
 } from '@loopback/repository';
 import {
-  post,
-  param,
+  del,
   get,
   getModelSchemaRef,
+  param,
   patch,
+  post,
   put,
-  del,
   requestBody,
   response,
 } from '@loopback/rest';
@@ -23,8 +23,8 @@ import {PartyRepository} from '../repositories';
 export class PartyController {
   constructor(
     @repository(PartyRepository)
-    public partyRepository : PartyRepository,
-  ) {}
+    public partyRepository: PartyRepository,
+  ) { }
 
   @post('/parties')
   @response(200, {
@@ -46,6 +46,16 @@ export class PartyController {
   ): Promise<Party> {
     return this.partyRepository.create(party);
   }
+
+  // @post('/parties-bulk')
+  // @response(200, {
+  //   description: 'Party model instance',
+  //   content: {'application/json': {schema: getModelSchemaRef(Party)}},
+  // })
+  // async bulkUpload(@requestBody() data: Party[]): Promise<void> {
+  //   Use repository methods to save the data in bulk
+  //   await this.partyRepository.createAll(data);
+  // }
 
   @get('/parties/count')
   @response(200, {
