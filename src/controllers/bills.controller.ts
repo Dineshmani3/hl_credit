@@ -67,16 +67,16 @@ export class BillsController {
           schema: {
             type: 'array',
             items: getModelSchemaRef(Bills, {
-              title: 'NewParty',
+              title: 'NewBills',
               exclude: ['id'],
             }),
           }
         },
       },
     })
-    parties: [Omit<Bills, 'id'>]
+    bills: [Omit<Bills, 'id'>]
   ): Promise<void> {
-    await this.billsRepository.createAll(parties)
+    await this.billsRepository.createAll(bills)
   }
 
   @get('/bills/count')
