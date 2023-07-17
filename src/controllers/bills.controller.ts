@@ -7,13 +7,13 @@ import {
   Where,
 } from '@loopback/repository';
 import {
-  post,
-  param,
+  del,
   get,
   getModelSchemaRef,
+  param,
   patch,
+  post,
   put,
-  del,
   requestBody,
   response,
 } from '@loopback/rest';
@@ -23,8 +23,8 @@ import {BillsRepository} from '../repositories';
 export class BillsController {
   constructor(
     @repository(BillsRepository)
-    public billsRepository : BillsRepository,
-  ) {}
+    public billsRepository: BillsRepository,
+  ) { }
 
   @post('/bills')
   @response(200, {
@@ -45,6 +45,38 @@ export class BillsController {
     bills: Omit<Bills, 'id'>,
   ): Promise<Bills> {
     return this.billsRepository.create(bills);
+  }
+
+
+  @post('/bills-bulk', {
+    responses: {
+      '200': {
+        description: 'Party model instance',
+        content: {
+          'application/json': {
+            schema: getModelSchemaRef(Bills)
+          }
+        },
+      },
+    },
+  })
+  async createAll(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: {
+            type: 'array',
+            items: getModelSchemaRef(Bills, {
+              title: 'NewParty',
+              exclude: ['id'],
+            }),
+          }
+        },
+      },
+    })
+    parties: [Omit<Bills, 'id'>]
+  ): Promise<void> {
+    await this.billsRepository.createAll(parties)
   }
 
   @get('/bills/count')

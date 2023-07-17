@@ -74,8 +74,8 @@ export class PartyController {
       },
     })
     parties: [Omit<Party, 'id'>]
-  ): Promise<Party[]> {
-    return await this.partyRepository.createAll(parties)
+  ): Promise<void> {
+    await this.partyRepository.createAll(parties)
   }
 
   @get('/parties/count')

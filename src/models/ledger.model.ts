@@ -42,6 +42,10 @@ export class Ledger extends Entity {
   })
   balance?: number;
 
+  @property({
+    type: 'string',
+  })
+  billsId?: string;
 
   constructor(data?: Partial<Ledger>) {
     super(data);
