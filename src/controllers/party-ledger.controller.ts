@@ -17,22 +17,22 @@ import {
 } from '@loopback/rest';
 import {
   Party,
-  Bills,
+  Ledger,
 } from '../models';
 import {PartyRepository} from '../repositories';
 
-export class PartyBillsController {
+export class PartyLedgerController {
   constructor(
     @repository(PartyRepository) protected partyRepository: PartyRepository,
   ) { }
 
-  @get('/parties/{id}/bills', {
+  @get('/parties/{id}/ledgers', {
     responses: {
       '200': {
-        description: 'Array of Party has many Bills',
+        description: 'Array of Party has many Ledger',
         content: {
           'application/json': {
-            schema: {type: 'array', items: getModelSchemaRef(Bills)},
+            schema: {type: 'array', items: getModelSchemaRef(Ledger)},
           },
         },
       },
@@ -40,16 +40,16 @@ export class PartyBillsController {
   })
   async find(
     @param.path.string('id') id: string,
-    @param.query.object('filter') filter?: Filter<Bills>,
-  ): Promise<Bills[]> {
-    return this.partyRepository.bills(id).find(filter);
+    @param.query.object('filter') filter?: Filter<Ledger>,
+  ): Promise<Ledger[]> {
+    return this.partyRepository.ledgers(id).find(filter);
   }
 
-  @post('/parties/{id}/bills', {
+  @post('/parties/{id}/ledgers', {
     responses: {
       '200': {
         description: 'Party model instance',
-        content: {'application/json': {schema: getModelSchemaRef(Bills)}},
+        content: {'application/json': {schema: getModelSchemaRef(Ledger)}},
       },
     },
   })
@@ -58,22 +58,22 @@ export class PartyBillsController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Bills, {
-            title: 'NewBillsInParty',
+          schema: getModelSchemaRef(Ledger, {
+            title: 'NewLedgerInParty',
             exclude: ['id'],
             optional: ['partyId']
           }),
         },
       },
-    }) bills: Omit<Bills, 'id'>,
-  ): Promise<Bills> {
-    return this.partyRepository.bills(id).create(bills);
+    }) ledger: Omit<Ledger, 'id'>,
+  ): Promise<Ledger> {
+    return this.partyRepository.ledgers(id).create(ledger);
   }
 
-  @patch('/parties/{id}/bills', {
+  @patch('/parties/{id}/ledgers', {
     responses: {
       '200': {
-        description: 'Party.Bills PATCH success count',
+        description: 'Party.Ledger PATCH success count',
         content: {'application/json': {schema: CountSchema}},
       },
     },
@@ -83,28 +83,28 @@ export class PartyBillsController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Bills, {partial: true}),
+          schema: getModelSchemaRef(Ledger, {partial: true}),
         },
       },
     })
-    bills: Partial<Bills>,
-    @param.query.object('where', getWhereSchemaFor(Bills)) where?: Where<Bills>,
+    ledger: Partial<Ledger>,
+    @param.query.object('where', getWhereSchemaFor(Ledger)) where?: Where<Ledger>,
   ): Promise<Count> {
-    return this.partyRepository.bills(id).patch(bills, where);
+    return this.partyRepository.ledgers(id).patch(ledger, where);
   }
 
-  @del('/parties/{id}/bills', {
+  @del('/parties/{id}/ledgers', {
     responses: {
       '200': {
-        description: 'Party.Bills DELETE success count',
+        description: 'Party.Ledger DELETE success count',
         content: {'application/json': {schema: CountSchema}},
       },
     },
   })
   async delete(
     @param.path.string('id') id: string,
-    @param.query.object('where', getWhereSchemaFor(Bills)) where?: Where<Bills>,
+    @param.query.object('where', getWhereSchemaFor(Ledger)) where?: Where<Ledger>,
   ): Promise<Count> {
-    return this.partyRepository.bills(id).delete(where);
+    return this.partyRepository.ledgers(id).delete(where);
   }
 }

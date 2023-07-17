@@ -41,8 +41,11 @@ export class Party extends Entity {
   })
   outStanding?: string;
 
-  @hasMany(() => Bills, {through: {model: () => Ledger}})
+  @hasMany(() => Bills)
   bills: Bills[];
+
+  @hasMany(() => Ledger)
+  ledgers: Ledger[];
 
   constructor(data?: Partial<Party>) {
     super(data);
