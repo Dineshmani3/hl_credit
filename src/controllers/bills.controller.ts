@@ -48,7 +48,8 @@ export class BillsController {
     })
     bills: Omit<Bills, 'id'>,
   ): Promise<Bills> {
-    const party = await this.partyrepository.findById(bills.partyId)
+    // const party = await this.partyrepository.findById(bills.partyId)
+    const party = await this.partyrepository.findOne({where: {party_name: bills.partyId}});
 
     if (party) {
       const totalOutstanding = (party.outStanding || 0) + (bills.outstanding || 0)
@@ -56,6 +57,7 @@ export class BillsController {
     }
     else {
       throw new HttpErrors.NotFound('party not found')
+
     }
 
     return this.billsRepository.create(bills);

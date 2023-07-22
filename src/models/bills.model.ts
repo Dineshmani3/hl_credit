@@ -20,6 +20,9 @@ export class Bills extends Entity {
   @property({
     type: 'string',
     required: true,
+    index: {
+      unique: true, // Set the field as unique
+    },
   })
   billNo: string;
 
@@ -42,7 +45,7 @@ export class Bills extends Entity {
   @hasMany(() => Ledger)
   ledgers: Ledger[];
 
-  @belongsTo(() => Party)
+  @belongsTo(() => Party, {keyTo: 'party_name'})
   partyId: string;
 
 
