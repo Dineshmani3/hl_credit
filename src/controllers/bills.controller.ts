@@ -50,12 +50,14 @@ export class BillsController {
     })
     bills: Omit<Bills, 'id'>,
   ): Promise<Bills> {
-    const party = await this.partyrepository.findById(bills.partyId)
-    // const party = await this.partyrepository.findById({where: {party_name: bills.partyId}});
-    const beat = await this.beatrepository.findOne({where: {name: party.beat}})
+    // const party = await this.partyrepository.findById(bills.partyId)
+    const party = await this.partyrepository.findOne({where: {party_name: bills.partyId}});
+
     if (party) {
       const totalOutstanding = (party.outStanding || 0) + (bills.outstanding || 0)
       await this.partyrepository.updateById(party.id, {outStanding: totalOutstanding})
+
+      const beat = await this.beatrepository.findOne({where: {name: party.beat}})
       if (beat) {
         const beatOutstanding = (bills.outstanding || 0) + (beat.outstanding || 0)
         await this.beatrepository.updateById(beat.id, {outstanding: beatOutstanding})
