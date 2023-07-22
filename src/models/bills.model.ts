@@ -45,17 +45,6 @@ export class Bills extends Entity {
   @belongsTo(() => Party)
   partyId: string;
 
-  // @beforeSave()
-  // static async updateOutstanding(ctx: BeforeSaveContext<Bills>) {
-  //   if (ctx.isNewInstance) {
-  //     const partyModel = await ctx.repositoryGetter().parties();
-  //     const party = await partyModel.findById(ctx.instance?.partyId);
-  //     if (party) {
-  //       party.outstanding = (party.outstanding || 0) + ctx.instance?.amount;
-  //       await partyModel.update(party);
-  //     }
-  //   }
-  // }
 
   constructor(data?: Partial<Bills>) {
     super(data);

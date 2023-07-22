@@ -25,29 +25,7 @@ export class BillsRepository extends DefaultCrudRepository<
     this.registerInclusionResolver('ledgers', this.ledgers.inclusionResolver);
   }
 
-  definePersistedModel(entityClass: typeof Bills) {
-    const modelClass = super.definePersistedModel(entityClass);
-    // modelClass.observe('before save', async ctx => {
-    //   console.log(`going to save ${ctx.Model.modelName}`);
-    // });
 
-    modelClass.observe('before save', async function updateOutstanding(ctx) {
-      if (ctx.instance) {
-        // const partyModel = await modelClass.repository.parties();
-        // const party = await partyModel.findById(ctx.instance.partyId);
-
-        const partyModel = await ctx.repositoryGetter().parties();
-        const party = await partyModel.findById(ctx.instance.partyId);
-        // const partyRepository = ctx.target.constructor.relations.party.repository;
-        // const party = await partyRepository.findById(ctx.instance.partyId);
-        if (party) {
-          party.outstanding = (party.outstanding || 0) + ctx.instance.amount;
-          await partyModel.update(party);
-        }
-      }
-    })
-    return modelClass;
-  }
 
 }
 

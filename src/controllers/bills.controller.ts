@@ -10,6 +10,7 @@ import {
   del,
   get,
   getModelSchemaRef,
+  HttpErrors,
   param,
   patch,
   post,
@@ -18,12 +19,15 @@ import {
   response,
 } from '@loopback/rest';
 import {Bills} from '../models';
-import {BillsRepository} from '../repositories';
+import {BillsRepository, PartyRepository} from '../repositories';
+
 
 export class BillsController {
   constructor(
     @repository(BillsRepository)
     public billsRepository: BillsRepository,
+    @repository(PartyRepository)
+    public partyrepository: PartyRepository,
   ) { }
 
   @post('/bills')
@@ -44,6 +48,16 @@ export class BillsController {
     })
     bills: Omit<Bills, 'id'>,
   ): Promise<Bills> {
+    const party = await this.partyrepository.findById(bills.partyId)
+
+    if (party) {
+      const totalOutstanding = (party.outStanding || 0) + (bills.outstanding || 0)
+      await this.partyrepository.updateById(party.id, {outStanding: totalOutstanding})
+    }
+    else {
+      throw new HttpErrors.NotFound('party not found')
+    }
+
     return this.billsRepository.create(bills);
   }
 
