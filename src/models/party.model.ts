@@ -7,7 +7,7 @@ export class Party extends Entity {
   @property({
     type: 'string',
     id: true,
-    generated: true,
+    generated: false,
   })
   id?: string;
 
@@ -18,6 +18,7 @@ export class Party extends Entity {
 
   @property({
     type: 'string',
+
   })
   party_name?: string;
 
