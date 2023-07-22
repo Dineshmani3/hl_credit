@@ -1,5 +1,7 @@
-import {Entity, model, property, hasMany} from '@loopback/repository';
+import {Entity, belongsTo, hasMany, model, property} from '@loopback/repository';
 import {Ledger} from './ledger.model';
+import {Party} from './party.model';
+
 
 @model()
 export class Bills extends Entity {
@@ -9,13 +11,6 @@ export class Bills extends Entity {
     generated: true,
   })
   id?: string;
-
-  @property({
-    type: 'string',
-    required: true,
-  })
-  partyId: string;
-
   @property({
     type: 'string',
     required: true,
@@ -47,9 +42,25 @@ export class Bills extends Entity {
   @hasMany(() => Ledger)
   ledgers: Ledger[];
 
+  @belongsTo(() => Party)
+  partyId: string;
+
+  // @beforeSave()
+  // static async updateOutstanding(ctx: BeforeSaveContext<Bills>) {
+  //   if (ctx.isNewInstance) {
+  //     const partyModel = await ctx.repositoryGetter().parties();
+  //     const party = await partyModel.findById(ctx.instance?.partyId);
+  //     if (party) {
+  //       party.outstanding = (party.outstanding || 0) + ctx.instance?.amount;
+  //       await partyModel.update(party);
+  //     }
+  //   }
+  // }
+
   constructor(data?: Partial<Bills>) {
     super(data);
   }
+
 }
 
 export interface BillsRelations {
@@ -57,3 +68,4 @@ export interface BillsRelations {
 }
 
 export type BillsWithRelations = Bills & BillsRelations;
+

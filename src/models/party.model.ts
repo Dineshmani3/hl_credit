@@ -1,4 +1,4 @@
-import {Entity, model, property, hasMany} from '@loopback/repository';
+import {Entity, hasMany, model, property} from '@loopback/repository';
 import {Bills} from './bills.model';
 import {Ledger} from './ledger.model';
 
@@ -37,9 +37,9 @@ export class Party extends Entity {
   userTableId?: string;
 
   @property({
-    type: 'string',
+    type: 'number',
   })
-  outStanding?: string;
+  outStanding?: number;
 
   @hasMany(() => Bills)
   bills: Bills[];
