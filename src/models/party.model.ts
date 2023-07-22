@@ -47,6 +47,11 @@ export class Party extends Entity {
   @hasMany(() => Ledger)
   ledgers: Ledger[];
 
+  @property({
+    type: 'string',
+  })
+  beatId?: string;
+
   constructor(data?: Partial<Party>) {
     super(data);
   }

@@ -12,3 +12,4 @@ export * from './user-table-user-info-table.controller';
 export * from './party-bills.controller';
 export * from './bills-ledger.controller';
 export * from './party-ledger.controller';
+export * from './beat-party.controller';
