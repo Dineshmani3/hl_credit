@@ -117,6 +117,39 @@ export class BillsController {
     })
     bills: [Omit<Bills, 'id'>]
   ): Promise<void> {
+    bills.map(async bill => {
+      const party = await this.partyrepository.findOne({where: {party_name: bill.partyId}});
+
+      if (party) {
+        const totalOutstanding = (party.outStanding || 0) + (bill.outstanding || 0)
+        await this.partyrepository.updateById(party.id, {outStanding: totalOutstanding})
+
+        const newLedger = {
+          date: bill.date,
+          billNo: bill.billNo,
+          debit: bill.outstanding,
+          balance: totalOutstanding,
+          partyId: bill.partyId
+        }
+        await this.ledgerrepository.create(newLedger)
+
+        const beat = await this.beatrepository.findOne({where: {name: party.beat}})
+        if (beat) {
+          const beatOutstanding = (bill.outstanding || 0) + (beat.outstanding || 0)
+          await this.beatrepository.updateById(beat.id, {outstanding: beatOutstanding})
+        }
+        else {
+          throw new HttpErrors.NotFound('beat not found')
+        }
+
+
+      }
+      else {
+        throw new HttpErrors.NotFound('party not found')
+
+      }
+
+    })
     await this.billsRepository.createAll(bills)
   }
 
