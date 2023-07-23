@@ -63,7 +63,8 @@ export class BillsController {
         date: bills.date,
         billNo: bills.billNo,
         debit: bills.outstanding,
-        balance: totalOutstanding
+        balance: totalOutstanding,
+        partyId: bills.partyId
       }
       await this.ledgerrepository.create(newLedger)
 
