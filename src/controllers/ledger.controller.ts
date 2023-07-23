@@ -7,24 +7,31 @@ import {
   Where,
 } from '@loopback/repository';
 import {
-  post,
-  param,
+  del,
   get,
   getModelSchemaRef,
+  HttpErrors,
+  param,
   patch,
+  post,
   put,
-  del,
   requestBody,
   response,
 } from '@loopback/rest';
 import {Ledger} from '../models';
-import {LedgerRepository} from '../repositories';
+import {BeatRepository, BillsRepository, LedgerRepository, PartyRepository} from '../repositories';
 
 export class LedgerController {
   constructor(
     @repository(LedgerRepository)
-    public ledgerRepository : LedgerRepository,
-  ) {}
+    public ledgerRepository: LedgerRepository,
+    @repository(BillsRepository)
+    public billsRepository: BillsRepository,
+    @repository(BeatRepository)
+    public beatRepository: BeatRepository,
+    @repository(PartyRepository)
+    public partyRepository: PartyRepository,
+  ) { }
 
   @post('/ledgers')
   @response(200, {
@@ -44,6 +51,39 @@ export class LedgerController {
     })
     ledger: Omit<Ledger, 'id'>,
   ): Promise<Ledger> {
+    const party = await this.partyRepository.findOne({where: {party_name: ledger.partyId}});
+
+    if (party) {
+      const balance = ((party.outStanding || 0) + (ledger.debit || 0)) - (ledger.credit || 0)
+      ledger['balance'] = balance
+      await this.partyRepository.updateById(party.id, {outStanding: balance})
+
+      const bill = await this.billsRepository.findOne({where: {billNo: ledger.billNo}})
+      if (bill) {
+        const billOutstanding = ((bill.outstanding || 0) + (ledger.debit || 0)) - (ledger.credit || 0)
+        await this.billsRepository.updateById(bill.id, {outstanding: billOutstanding})
+      }
+      else {
+        throw new HttpErrors.NotFound('bill not found')
+      }
+      const beat = await this.beatRepository.findOne({where: {name: party.beat}})
+      if (beat) {
+        const beatOutstanding = ((beat.outstanding || 0) + (ledger.debit || 0)) - (ledger.credit || 0)
+
+        await this.beatRepository.updateById(beat.id, {outstanding: beatOutstanding})
+      }
+      else {
+        throw new HttpErrors.NotFound('beat not found')
+      }
+
+
+    }
+
+    else {
+      throw new HttpErrors.NotFound('party not found')
+
+    }
+
     return this.ledgerRepository.create(ledger);
   }
 
@@ -126,6 +166,38 @@ export class LedgerController {
     })
     ledger: Ledger,
   ): Promise<void> {
+    const party = await this.partyRepository.findOne({where: {party_name: ledger.partyId}});
+
+    if (party) {
+      const balance = ((party.outStanding || 0) - (ledger.debit || 0)) + (ledger.credit || 0)
+      ledger['balance'] = balance
+      await this.partyRepository.updateById(party.id, {outStanding: balance})
+
+      const bill = await this.billsRepository.findOne({where: {billNo: ledger.billNo}})
+      if (bill) {
+        const billOutstanding = ((bill.outstanding || 0) - (ledger.debit || 0)) + (ledger.credit || 0)
+        await this.billsRepository.updateById(bill.id, {outstanding: billOutstanding})
+      }
+      else {
+        throw new HttpErrors.NotFound('bill not found')
+      }
+      const beat = await this.beatRepository.findOne({where: {name: party.beat}})
+      if (beat) {
+        const beatOutstanding = ((beat.outstanding || 0) - (ledger.debit || 0)) + (ledger.credit || 0)
+
+        await this.beatRepository.updateById(beat.id, {outstanding: beatOutstanding})
+      }
+      else {
+        throw new HttpErrors.NotFound('beat not found')
+      }
+
+    }
+
+    else {
+      throw new HttpErrors.NotFound('party not found')
+
+    }
+
     await this.ledgerRepository.updateById(id, ledger);
   }
 
@@ -145,6 +217,37 @@ export class LedgerController {
     description: 'Ledger DELETE success',
   })
   async deleteById(@param.path.string('id') id: string): Promise<void> {
+    const ledger = await this.ledgerRepository.findById(id)
+    const party = await this.partyRepository.findOne({where: {party_name: ledger.partyId}});
+
+    if (party) {
+      const balance = ((party.outStanding || 0) - (ledger.debit || 0)) + (ledger.credit || 0)
+      ledger['balance'] = balance
+      await this.partyRepository.updateById(party.id, {outStanding: balance})
+
+      const bill = await this.billsRepository.findOne({where: {billNo: ledger.billNo}})
+      if (bill) {
+        const billOutstanding = ((bill.outstanding || 0) - (ledger.debit || 0)) + (ledger.credit || 0)
+        await this.billsRepository.updateById(bill.id, {outstanding: billOutstanding})
+      }
+      else {
+        throw new HttpErrors.NotFound('bill not found')
+      }
+      const beat = await this.beatRepository.findOne({where: {name: party.beat}})
+      if (beat) {
+        const beatOutstanding = ((beat.outstanding || 0) - (ledger.debit || 0)) + (ledger.credit || 0)
+
+        await this.beatRepository.updateById(beat.id, {outstanding: beatOutstanding})
+      }
+      else {
+        throw new HttpErrors.NotFound('beat not found')
+      }
+
+    }
+    else {
+      throw new HttpErrors.NotFound('party not found')
+
+    }
     await this.ledgerRepository.deleteById(id);
   }
 }

@@ -232,6 +232,37 @@ export class BillsController {
     })
     bills: Bills,
   ): Promise<void> {
+    // const party = await this.partyrepository.findOne({where: {party_name: bills.partyId}});
+
+    // if (party) {
+    //   const totalOutstanding = (party.outStanding || 0) + (bills.outstanding || 0)
+    //   await this.partyrepository.updateById(party.id, {outStanding: totalOutstanding})
+
+    //   const newLedger = {
+    //     date: bills.date,
+    //     billNo: bills.billNo,
+    //     debit: bills.outstanding,
+    //     balance: totalOutstanding,
+    //     partyId: bills.partyId
+    //   }
+    //   await this.ledgerrepository.create(newLedger)
+
+    //   const beat = await this.beatrepository.findOne({where: {name: party.beat}})
+    //   if (beat) {
+    //     const beatOutstanding = (bills.outstanding || 0) + (beat.outstanding || 0)
+    //     await this.beatrepository.updateById(beat.id, {outstanding: beatOutstanding})
+    //   }
+    //   else {
+    //     throw new HttpErrors.NotFound('beat not found')
+    //   }
+
+
+    // }
+    // else {
+    //   throw new HttpErrors.NotFound('party not found')
+
+    // }
+
     await this.billsRepository.updateById(id, bills);
   }
 
