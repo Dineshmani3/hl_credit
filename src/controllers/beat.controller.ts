@@ -129,6 +129,26 @@ export class BeatController {
     await this.beatRepository.updateById(id, beat);
   }
 
+  @post('/beat-edit/{id}')
+  @response(204, {
+    description: 'Beat post edit success',
+  })
+  async updateBeatById(
+    @param.path.string('id') id: string,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(Beat, {partial: true}),
+        },
+      },
+    })
+    beat: Beat,
+  ): Promise<void> {
+    await this.beatRepository.updateById(id, beat);
+  }
+
+
+
   @put('/beats/{id}')
   @response(204, {
     description: 'Beat PUT success',
