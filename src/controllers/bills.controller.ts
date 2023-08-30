@@ -217,7 +217,7 @@ export class BillsController {
     return this.billsRepository.findById(id, filter);
   }
 
-  @patch('/bills/{id}')
+  @post('/bills/{id}')
   @response(204, {
     description: 'Bills PATCH success',
   })
