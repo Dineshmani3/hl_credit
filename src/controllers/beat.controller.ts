@@ -148,6 +148,28 @@ export class BeatController {
   }
 
 
+  @post('/beatUpdate/{id}')
+  @response(200, {
+    description: 'Beat model instance',
+
+  })
+  async updateBeat(
+    @param.path.string('id') id: string,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(Beat, {
+            partial: true
+          }),
+        },
+      },
+    })
+    beat: Beat,
+  ): Promise<void> {
+    await this.beatRepository.updateById(id, beat);
+  }
+
+
 
   @put('/beats/{id}')
   @response(204, {

@@ -18,9 +18,9 @@ export class Party extends Entity {
 
   @property({
     type: 'string',
-    index: {
-      unique: true
-    }
+    // index: {
+    //   unique: true
+    // }
   })
   party_name?: string;
 
