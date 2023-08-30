@@ -142,7 +142,7 @@ export class PartyController {
     return this.partyRepository.findById(id, filter);
   }
 
-  @patch('/parties/{id}')
+  @post('/parties/{id}')
   @response(204, {
     description: 'Party PATCH success',
   })

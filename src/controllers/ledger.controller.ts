@@ -151,7 +151,7 @@ export class LedgerController {
     return this.ledgerRepository.findById(id, filter);
   }
 
-  @patch('/ledgers/{id}')
+  @post('/ledgers/{id}')
   @response(204, {
     description: 'Ledger PATCH success',
   })
