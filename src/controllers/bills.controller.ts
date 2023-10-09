@@ -92,7 +92,7 @@ export class BillsController {
   @post('/bills-bulk', {
     responses: {
       '200': {
-        description: 'Party model instance',
+        description: 'bills model instance',
         content: {
           'application/json': {
             schema: getModelSchemaRef(Bills)
@@ -117,12 +117,12 @@ export class BillsController {
     })
     bills: [Omit<Bills, 'id'>]
   ): Promise<void> {
-    bills.map(async bill => {
+    bills.map(async (bill) => {
       const party = await this.partyrepository.findOne({where: {party_name: bill.partyId}});
 
       if (party) {
-        const totalOutstanding = (party.outStanding || 0) + (bill.outstanding || 0)
-        await this.partyrepository.updateById(party.id, {outStanding: totalOutstanding})
+        const totalOutstanding = (party.outStanding || 0) + (bill.outstanding || 0);
+        await this.partyrepository.updateById(party.id, {outStanding: totalOutstanding});
 
         const newLedger = {
           date: bill.date,
@@ -130,22 +130,22 @@ export class BillsController {
           debit: bill.outstanding,
           balance: totalOutstanding,
           partyId: bill.partyId
-        }
-        await this.ledgerrepository.create(newLedger)
+        };
+        await this.ledgerrepository.create(newLedger);
 
-        const beat = await this.beatrepository.findOne({where: {name: party.beat}})
+        const beat = await this.beatrepository.findOne({where: {name: party.beat}});
         if (beat) {
-          const beatOutstanding = (bill.outstanding || 0) + (beat.outstanding || 0)
-          await this.beatrepository.updateById(beat.id, {outstanding: beatOutstanding})
+          const beatOutstanding = (bill.outstanding || 0) + (beat.outstanding || 0);
+          await this.beatrepository.updateById(beat.id, {outstanding: beatOutstanding});
         }
         else {
-          throw new HttpErrors.NotFound('beat not found')
+          throw new HttpErrors.NotFound('beat not found');
         }
 
 
       }
       else {
-        throw new HttpErrors.NotFound('party not found')
+        throw new HttpErrors.NotFound('party not found');
 
       }
 
@@ -216,6 +216,22 @@ export class BillsController {
   ): Promise<Bills> {
     return this.billsRepository.findById(id, filter);
   }
+
+  @get('/billByNo/{billNo}')
+  @response(200, {
+    description: 'Bills model instance',
+    content: {
+      'application/json': {
+        schema: getModelSchemaRef(Bills, {includeRelations: true}),
+      },
+    },
+  })
+  async findByBillNo(
+    @param.path.string('billNo') billNo: string,
+  ): Promise<Bills | null> {
+    return this.billsRepository.findOne({where: {billNo}});
+  }
+
 
   @post('/bills/{id}')
   @response(204, {
