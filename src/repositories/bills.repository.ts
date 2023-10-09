@@ -14,7 +14,6 @@ export class BillsRepository extends DefaultCrudRepository<
   public readonly ledgers: HasManyRepositoryFactory<Ledger, typeof Bills.prototype.id>;
 
   public readonly party: BelongsToAccessor<Party, typeof Bills.prototype.id>;
-  findByBillNo: any;
 
   constructor(
     @inject('datasources.MongoDb') dataSource: MongoDbDataSource, @repository.getter('LedgerRepository') protected ledgerRepositoryGetter: Getter<LedgerRepository>, @repository.getter('PartyRepository') protected partyRepositoryGetter: Getter<PartyRepository>,
