@@ -198,37 +198,47 @@ export class BillsController {
     const failedItems: Bills[] = [];
 
     // Use Promise.all to wait for all async operations to complete
+    // Use Promise.all to wait for all async operations to complete
     await Promise.all(
       bills.map(async (bill) => {
         try {
-          const party = await this.partyrepository.findOne({
-            where: {party_name: bill.partyId},
+          // Check if a bill with the same billNo already exists
+          const existingBill = await this.billsRepository.findOne({
+            where: {billNo: bill.billNo},
           });
 
-          if (party) {
-            const totalOutstanding = (party.outStanding || 0) + (bill.outstanding || 0);
-            await this.partyrepository.updateById(party.id, {outStanding: totalOutstanding});
+          if (!existingBill) {
+            const party = await this.partyrepository.findOne({
+              where: {party_name: bill.partyId},
+            });
 
-            const newLedger = {
-              date: bill.date,
-              billNo: bill.billNo,
-              debit: bill.outstanding,
-              balance: totalOutstanding,
-              partyId: bill.partyId,
-            };
-            await this.ledgerrepository.create(newLedger);
+            if (party) {
+              const totalOutstanding = (party.outStanding || 0) + (bill.outstanding || 0);
+              await this.partyrepository.updateById(party.id, {outStanding: totalOutstanding});
 
-            const beat = await this.beatrepository.findOne({where: {name: party.beat}});
-            if (beat) {
-              const beatOutstanding = (bill.outstanding || 0) + (beat.outstanding || 0);
-              await this.beatrepository.updateById(beat.id, {outstanding: beatOutstanding});
+              const newLedger = {
+                date: bill.date,
+                billNo: bill.billNo,
+                debit: bill.outstanding,
+                balance: totalOutstanding,
+                partyId: bill.partyId,
+              };
+              await this.ledgerrepository.create(newLedger);
+
+              const beat = await this.beatrepository.findOne({where: {name: party.beat}});
+              if (beat) {
+                const beatOutstanding = (bill.outstanding || 0) + (beat.outstanding || 0);
+                await this.beatrepository.updateById(beat.id, {outstanding: beatOutstanding});
+              } else {
+                failedItems.push(bill); // Add the failed bill to the array
+              }
+
+              successItems.push(bill); // Add the successfully processed bill to the array
             } else {
               failedItems.push(bill); // Add the failed bill to the array
             }
-
-            successItems.push(bill); // Add the successfully processed bill to the array
           } else {
-            failedItems.push(bill); // Add the failed bill to the array
+            console.log(`Bill with billNo ${bill.billNo} already exists. Skipping.`);
           }
         } catch (error) {
           console.error('Error creating bill:', error);
