@@ -151,6 +151,22 @@ export class LedgerController {
     return this.ledgerRepository.findById(id, filter);
   }
 
+  @get('/bill/{billNo}/ledgers', {
+    responses: {
+      '200': {
+        description: 'Array of Ledger associated with Bill',
+        content: {
+          'application/json': {
+            schema: {type: 'array', items: {'x-ts-type': Ledger}},
+          },
+        },
+      },
+    },
+  })
+  async findLedgerByBillNo(@param.path.string('billNo') billNo: string): Promise<Ledger[]> {
+    return this.ledgerRepository.find({where: {billNo}});
+  }
+
   @post('/ledgers/{id}')
   @response(204, {
     description: 'Ledger PATCH success',
