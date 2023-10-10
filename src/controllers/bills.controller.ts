@@ -215,7 +215,7 @@ export class BillsController {
         } catch (error) {
           // Handle errors here, you might want to log them or respond with appropriate HTTP status codes.
           console.error('Error creating bill:', error);
-          throw new HttpErrors.InternalServerError('Error creating bill');
+          throw new HttpErrors.InternalServerError('Error creating bill' + error);
         }
       })
     );
