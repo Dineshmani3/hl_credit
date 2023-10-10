@@ -95,8 +95,8 @@ export class BillsController {
   //       description: 'bills model instance',
   //       content: {
   //         'application/json': {
-  //           schema: getModelSchemaRef(Bills)
-  //         }
+  //           schema: getModelSchemaRef(Bills),
+  //         },
   //       },
   //     },
   //   },
@@ -111,55 +111,68 @@ export class BillsController {
   //             title: 'NewBills',
   //             exclude: ['id'],
   //           }),
-  //         }
+  //         },
   //       },
   //     },
   //   })
-  //   bills: [Omit<Bills, 'id'>]
+  //   bills: Omit<Bills, 'id'>[],
   // ): Promise<void> {
-  //   bills.map(async (bill) => {
-  //     const party = await this.partyrepository.findOne({where: {party_name: bill.partyId}});
+  //   // Use Promise.all to wait for all async operations to complete
+  //   await Promise.all(
+  //     bills.map(async (bill) => {
+  //       try {
+  //         const party = await this.partyrepository.findOne({
+  //           where: {party_name: bill.partyId},
+  //         });
 
-  //     if (party) {
-  //       const totalOutstanding = (party.outStanding || 0) + (bill.outstanding || 0);
-  //       await this.partyrepository.updateById(party.id, {outStanding: totalOutstanding});
+  //         if (party) {
+  //           const totalOutstanding = (party.outStanding || 0) + (bill.outstanding || 0);
+  //           await this.partyrepository.updateById(party.id, {outStanding: totalOutstanding});
 
-  //       const newLedger = {
-  //         date: bill.date,
-  //         billNo: bill.billNo,
-  //         debit: bill.outstanding,
-  //         balance: totalOutstanding,
-  //         partyId: bill.partyId
-  //       };
-  //       await this.ledgerrepository.create(newLedger);
+  //           const newLedger = {
+  //             date: bill.date,
+  //             billNo: bill.billNo,
+  //             debit: bill.outstanding,
+  //             balance: totalOutstanding,
+  //             partyId: bill.partyId,
+  //           };
+  //           await this.ledgerrepository.create(newLedger);
 
-  //       const beat = await this.beatrepository.findOne({where: {name: party.beat}});
-  //       if (beat) {
-  //         const beatOutstanding = (bill.outstanding || 0) + (beat.outstanding || 0);
-  //         await this.beatrepository.updateById(beat.id, {outstanding: beatOutstanding});
+  //           const beat = await this.beatrepository.findOne({where: {name: party.beat}});
+  //           if (beat) {
+  //             const beatOutstanding = (bill.outstanding || 0) + (beat.outstanding || 0);
+  //             await this.beatrepository.updateById(beat.id, {outstanding: beatOutstanding});
+  //           } else {
+  //             throw new HttpErrors.NotFound('beat not found');
+  //           }
+  //         } else {
+  //           throw new HttpErrors.NotFound('party not found');
+  //         }
+  //       } catch (error) {
+  //         // Handle errors here, you might want to log them or respond with appropriate HTTP status codes.
+  //         console.error('Error creating bill:', error);
+  //         throw new HttpErrors.InternalServerError('Error creating bill' + error);
   //       }
-  //       else {
-  //         throw new HttpErrors.NotFound('beat not found');
-  //       }
+  //     })
+  //   );
 
-
-  //     }
-  //     else {
-  //       throw new HttpErrors.NotFound('party not found');
-
-  //     }
-
-  //   })
-  //   await this.billsRepository.createAll(bills)
+  //   // After all bills are processed, create them in the BillsRepository
+  //   await this.billsRepository.createAll(bills);
   // }
 
   @post('/bills-bulk', {
     responses: {
       '200': {
-        description: 'bills model instance',
+        description: 'Bulk bills upload response',
         content: {
           'application/json': {
-            schema: getModelSchemaRef(Bills),
+            schema: {
+              type: 'object',
+              properties: {
+                success: {type: 'number'}, // Number of successful uploads
+                failed: {type: 'array', items: getModelSchemaRef(Bills)}, // Array of failed uploads
+              },
+            },
           },
         },
       },
@@ -180,7 +193,10 @@ export class BillsController {
       },
     })
     bills: Omit<Bills, 'id'>[],
-  ): Promise<void> {
+  ): Promise<{success: number; failed: Bills[]}> {
+    const successItems: Bills[] = [];
+    const failedItems: Bills[] = [];
+
     // Use Promise.all to wait for all async operations to complete
     await Promise.all(
       bills.map(async (bill) => {
@@ -207,21 +223,25 @@ export class BillsController {
               const beatOutstanding = (bill.outstanding || 0) + (beat.outstanding || 0);
               await this.beatrepository.updateById(beat.id, {outstanding: beatOutstanding});
             } else {
-              throw new HttpErrors.NotFound('beat not found');
+              failedItems.push(bill); // Add the failed bill to the array
             }
+
+            successItems.push(bill); // Add the successfully processed bill to the array
           } else {
-            throw new HttpErrors.NotFound('party not found');
+            failedItems.push(bill); // Add the failed bill to the array
           }
         } catch (error) {
-          // Handle errors here, you might want to log them or respond with appropriate HTTP status codes.
           console.error('Error creating bill:', error);
-          throw new HttpErrors.InternalServerError('Error creating bill' + error);
+          failedItems.push(bill); // Add the failed bill to the array
         }
       })
     );
 
     // After all bills are processed, create them in the BillsRepository
-    await this.billsRepository.createAll(bills);
+    await this.billsRepository.createAll(successItems);
+
+    // Return the response with success and failed items
+    return {success: successItems.length, failed: failedItems};
   }
 
   @get('/bills/count')
