@@ -13,6 +13,7 @@
   },
   "scripts": {
     "build": "lb-tsc",
+    "postinstall": "npm run build",
     "build:watch": "lb-tsc --watch",
     "lint": "npm run eslint && npm run prettier:check",
     "lint:fix": "npm run eslint:fix && npm run prettier:fix",
@@ -35,7 +36,8 @@
     "start": "pm2 start ecosystem.config.js --env production",
     "stop": "pm2 stop ecosystem.config.js --env production",
     "clean": "lb-clean dist *.tsbuildinfo .eslintcache",
-    "rebuild": "npm run clean && npm run build"
+    "rebuild": "npm run clean && npm run build",
+    "start:prod": "node dist/index.js"
   },
   "repository": {
     "type": "git",
